@@ -47,7 +47,7 @@ func (v3 *UniswapV3) GetPrice(ctx context.Context, token0, token1 common.Address
 		return 0, err
 	}
 
-	return pool.PriceOf(token1)
+	return pool.PriceOf(token0)
 }
 
 func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 common.Address, fee int64) (common.Address, error) {
