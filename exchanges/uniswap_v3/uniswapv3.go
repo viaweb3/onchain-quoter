@@ -3,6 +3,7 @@ package uniswap_v3
 import (
 	"context"
 	"errors"
+	"github.com/viaweb3/onchain-quoter/utils"
 	"log"
 	"math/big"
 	"time"
@@ -51,8 +52,7 @@ func (v3 *UniswapV3) GetPrice(ctx context.Context, token0, token1 common.Address
 }
 
 func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 common.Address, fee int64) (common.Address, error) {
-	// Make sure the address order is the same as in the Pool contract, easier for lookups
-	token0, token1 = sortTokens(token0, token1)
+	token0, token1 = utils.SortTokens(token0, token1)
 	zeroAddress := [20]byte{}
 	pool, err := v3.Factory.GetPool(&bind.CallOpts{Context: ctx}, token0, token1, big.NewInt(fee))
 	if err != nil {
@@ -67,9 +67,7 @@ func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 common.A
 }
 
 func (v3 *UniswapV3) GetPool(ctx context.Context, token0, token1 common.Address, fee int64) (*Pool, error) {
-	// Make sure the address order is the same as in the Pool contract, easier for lookups
-	token0, token1 = sortTokens(token0, token1)
-
+	token0, token1 = utils.SortTokens(token0, token1)
 	poolAddr, err := v3.GetPoolAddress(ctx, token0, token1, fee)
 	if err != nil {
 		return nil, err
