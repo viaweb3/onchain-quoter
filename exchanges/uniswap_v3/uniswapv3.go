@@ -28,8 +28,8 @@ type UniswapV3 struct {
 	defaultTimeout time.Duration
 }
 
-func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddress common.Address) *UniswapV3 {
-	factory, err := univ3factory.NewUniv3factoryCaller(factoryAddress, client)
+func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddress string) *UniswapV3 {
+	factory, err := univ3factory.NewUniv3factoryCaller(common.HexToAddress(factoryAddress), client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddre
 	}
 }
 
-func (v3 *UniswapV3) GetPrice(ctx context.Context, token0, token1 common.Address, fee int64) (float64, error) {
+func (v3 *UniswapV3) GetPrice(ctx context.Context, token0, token1 string, fee int64) (float64, error) {
 	pool, err := v3.GetPool(ctx, token0, token1, fee)
 	if err != nil {
 		return 0, err
@@ -51,10 +51,10 @@ func (v3 *UniswapV3) GetPrice(ctx context.Context, token0, token1 common.Address
 	return pool.PriceOf(token0)
 }
 
-func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 common.Address, fee int64) (common.Address, error) {
+func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 string, fee int64) (common.Address, error) {
 	token0, token1 = utils.SortTokens(token0, token1)
 	zeroAddress := [20]byte{}
-	pool, err := v3.Factory.GetPool(&bind.CallOpts{Context: ctx}, token0, token1, big.NewInt(fee))
+	pool, err := v3.Factory.GetPool(&bind.CallOpts{Context: ctx}, common.HexToAddress(token0), common.HexToAddress(token1), big.NewInt(fee))
 	if err != nil {
 		return zeroAddress, err
 	}
@@ -66,7 +66,7 @@ func (v3 *UniswapV3) GetPoolAddress(ctx context.Context, token0, token1 common.A
 	return pool, nil
 }
 
-func (v3 *UniswapV3) GetPool(ctx context.Context, token0, token1 common.Address, fee int64) (*Pool, error) {
+func (v3 *UniswapV3) GetPool(ctx context.Context, token0, token1 string, fee int64) (*Pool, error) {
 	token0, token1 = utils.SortTokens(token0, token1)
 	poolAddr, err := v3.GetPoolAddress(ctx, token0, token1, fee)
 	if err != nil {
@@ -90,7 +90,7 @@ func (v3 *UniswapV3) GetPool(ctx context.Context, token0, token1 common.Address,
 	}
 
 	poolName := t0.Symbol + t1.Symbol
-	pool, err := NewPool(v3.Client, poolName, poolAddr, immutables)
+	pool, err := NewPool(v3.Client, poolName, poolAddr.Hex(), immutables)
 	if err != nil {
 		return nil, err
 	}

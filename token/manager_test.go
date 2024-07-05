@@ -8,12 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var (
-	UniAddress = common.HexToAddress("0x1f9840a85d5af5bf1d1762f925bdaddc4201f984")
+	UniAddress = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
 )
 
 func TestGetToken(t *testing.T) {

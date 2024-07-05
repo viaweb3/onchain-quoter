@@ -7,12 +7,11 @@ import (
 
 	"github.com/viaweb3/onchain-quoter/token"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var (
-	ethUsdtPair = common.HexToAddress("0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852")
+	ethUsdtPair = "0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852"
 	token0      = token.NewToken("WETH", wethAddress, 18)
 	token1      = token.NewToken("USDT", usdtAddress, 6)
 )

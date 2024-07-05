@@ -24,8 +24,8 @@ type UniswapV2 struct {
 	defaultTimeout time.Duration
 }
 
-func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddress common.Address) *UniswapV2 {
-	factory, err := univ2factory.NewFactoryCaller(factoryAddress, client)
+func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddress string) *UniswapV2 {
+	factory, err := univ2factory.NewFactoryCaller(common.HexToAddress(factoryAddress), client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func New(client *ethclient.Client, tokenManager token.TokenManager, factoryAddre
 	}
 }
 
-func (v2 *UniswapV2) GetPrice(ctx context.Context, token0, token1 common.Address) (float64, error) {
+func (v2 *UniswapV2) GetPrice(ctx context.Context, token0, token1 string) (float64, error) {
 	pair, err := v2.GetPair(ctx, token0, token1)
 	if err != nil {
 		return 0, err
@@ -47,10 +47,10 @@ func (v2 *UniswapV2) GetPrice(ctx context.Context, token0, token1 common.Address
 	return pair.PriceOf(token0)
 }
 
-func (v2 *UniswapV2) GetPairAddress(ctx context.Context, token0, token1 common.Address) (common.Address, error) {
+func (v2 *UniswapV2) GetPairAddress(ctx context.Context, token0, token1 string) (common.Address, error) {
 	token0, token1 = utils.SortTokens(token0, token1)
 	zeroAddress := [20]byte{}
-	pair, err := v2.Factory.GetPair(&bind.CallOpts{Context: ctx}, token0, token1)
+	pair, err := v2.Factory.GetPair(&bind.CallOpts{Context: ctx}, common.HexToAddress(token0), common.HexToAddress(token1))
 	if err != nil {
 		return zeroAddress, err
 	}
@@ -62,7 +62,7 @@ func (v2 *UniswapV2) GetPairAddress(ctx context.Context, token0, token1 common.A
 	return pair, nil
 }
 
-func (v2 *UniswapV2) GetPair(ctx context.Context, token0, token1 common.Address) (*Pair, error) {
+func (v2 *UniswapV2) GetPair(ctx context.Context, token0, token1 string) (*Pair, error) {
 	token0, token1 = utils.SortTokens(token0, token1)
 	pairAddr, err := v2.GetPairAddress(ctx, token0, token1)
 	if err != nil {
@@ -85,7 +85,7 @@ func (v2 *UniswapV2) GetPair(ctx context.Context, token0, token1 common.Address)
 	}
 
 	pairName := t0.Symbol + t1.Symbol
-	pool, err := NewPair(v2.Client, pairName, pairAddr, immutables)
+	pool, err := NewPair(v2.Client, pairName, pairAddr.Hex(), immutables)
 	if err != nil {
 		return nil, err
 	}

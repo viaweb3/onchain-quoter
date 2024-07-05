@@ -7,12 +7,11 @@ import (
 
 	"github.com/viaweb3/onchain-quoter/token"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 var (
-	ethUsdcPool = common.HexToAddress("0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8")
+	ethUsdcPool = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
 	token1      = token.NewToken("WETH", wethAddress, 18)
 	token0      = token.NewToken("USDC", usdcAddress, 6)
 )

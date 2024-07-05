@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/allegro/bigcache/v3"
+	"github.com/ethereum/go-ethereum/common"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/viaweb3/onchain-quoter/bindings/erc20"
 )
@@ -18,7 +18,7 @@ var (
 )
 
 type TokenManager interface {
-	GetToken(ctx context.Context, address common.Address) (Token, error)
+	GetToken(ctx context.Context, address string) (Token, error)
 }
 
 type tokenManager struct {
@@ -41,12 +41,12 @@ func NewTokenDB(client *ethclient.Client) TokenManager {
 // Adds a token to the cache
 func (tc *tokenManager) add(token Token) {
 	encoded, _ := token.Encode()
-	tc.cache.Set(token.Address.String(), encoded)
+	tc.cache.Set(token.Address, encoded)
 }
 
 // Gets cached token by address if it's present.
-func (tc tokenManager) get(address common.Address) (Token, bool) {
-	encoded, err := tc.cache.Get(address.String())
+func (tc tokenManager) get(address string) (Token, bool) {
+	encoded, err := tc.cache.Get(address)
 	if err != nil {
 		return Token{}, false
 	}
@@ -57,7 +57,7 @@ func (tc tokenManager) get(address common.Address) (Token, bool) {
 	return t, true
 }
 
-func (tc *tokenManager) GetToken(ctx context.Context, address common.Address) (Token, error) {
+func (tc *tokenManager) GetToken(ctx context.Context, address string) (Token, error) {
 	// Check cache
 	if token, ok := tc.get(address); ok {
 		return token, nil
@@ -68,7 +68,7 @@ func (tc *tokenManager) GetToken(ctx context.Context, address common.Address) (T
 		return Token{}, ErrNotConnected
 	}
 
-	token, err := erc20.NewErc20Caller(address, tc.client)
+	token, err := erc20.NewErc20Caller(common.HexToAddress(address), tc.client)
 	if err != nil {
 		return Token{}, fmt.Errorf("getting token: %w", err)
 	}

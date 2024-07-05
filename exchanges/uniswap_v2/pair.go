@@ -37,15 +37,15 @@ type Pair struct {
 	State      PairState
 }
 
-func NewPair(client *ethclient.Client, name string, pairAddress common.Address, immutables PairOpts) (*Pair, error) {
-	caller, err := univ2pair.NewPairCaller(pairAddress, client)
+func NewPair(client *ethclient.Client, name string, pairAddress string, immutables PairOpts) (*Pair, error) {
+	caller, err := univ2pair.NewPairCaller(common.HexToAddress(pairAddress), client)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Pair{
 		Name:       name,
-		Address:    pairAddress,
+		Address:    common.HexToAddress(pairAddress),
 		client:     client,
 		caller:     caller,
 		Immutables: immutables,
@@ -73,7 +73,7 @@ func (p *Pair) UpdateState(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pair) PriceOf(token common.Address) (float64, error) {
+func (p *Pair) PriceOf(token string) (float64, error) {
 	var (
 		token0Multiplier = new(big.Int).Exp(big.NewInt(10), big.NewInt(p.Immutables.Token0.Decimals), nil)
 		token1Multiplier = new(big.Int).Exp(big.NewInt(10), big.NewInt(p.Immutables.Token1.Decimals), nil)

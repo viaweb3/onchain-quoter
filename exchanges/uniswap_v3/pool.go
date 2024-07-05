@@ -39,15 +39,15 @@ type Pool struct {
 	State      PoolState
 }
 
-func NewPool(client *ethclient.Client, name string, poolAddress common.Address, immutables PoolOpts) (*Pool, error) {
-	caller, err := univ3pool.NewUniv3poolCaller(poolAddress, client)
+func NewPool(client *ethclient.Client, name string, poolAddress string, immutables PoolOpts) (*Pool, error) {
+	caller, err := univ3pool.NewUniv3poolCaller(common.HexToAddress(poolAddress), client)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Pool{
 		Name:       name,
-		Address:    poolAddress,
+		Address:    common.HexToAddress(poolAddress),
 		client:     client,
 		caller:     caller,
 		Immutables: immutables,
@@ -76,7 +76,7 @@ func (p *Pool) UpdateState(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pool) PriceOf(token common.Address) (float64, error) {
+func (p *Pool) PriceOf(token string) (float64, error) {
 	var (
 		token0Multiplier = new(big.Int).Exp(big.NewInt(10), big.NewInt(p.Immutables.Token0.Decimals), nil)
 		token1Multiplier = new(big.Int).Exp(big.NewInt(10), big.NewInt(p.Immutables.Token1.Decimals), nil)
