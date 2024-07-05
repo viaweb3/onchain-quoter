@@ -31,6 +31,7 @@ type PairState struct {
 type Pair struct {
 	Name       string
 	Address    common.Address
+	client     *ethclient.Client
 	caller     *univ2pair.PairCaller
 	Immutables PairOpts
 	State      PairState
@@ -45,16 +46,17 @@ func NewPair(client *ethclient.Client, name string, pairAddress common.Address, 
 	return &Pair{
 		Name:       name,
 		Address:    pairAddress,
+		client:     client,
 		caller:     caller,
 		Immutables: immutables,
 		State:      PairState{},
 	}, nil
 }
 
-func (p *Pair) UpdateState(ctx context.Context, client *ethclient.Client) error {
+func (p *Pair) UpdateState(ctx context.Context) error {
 	opts := &bind.CallOpts{Context: ctx}
 
-	caller, err := univ2pair.NewPairCaller(p.Address, client)
+	caller, err := univ2pair.NewPairCaller(p.Address, p.client)
 	if err != nil {
 		return err
 	}

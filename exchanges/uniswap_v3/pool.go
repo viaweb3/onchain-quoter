@@ -31,14 +31,12 @@ type PoolState struct {
 }
 
 type Pool struct {
-	Name    string
-	Address common.Address
-
-	// NOTE: this field is empty for now because it is lost on encoding/decoding
-	caller *univ3pool.Univ3poolCaller
-
+	Name       string
+	Address    common.Address
+	client     *ethclient.Client
+	caller     *univ3pool.Univ3poolCaller
 	Immutables PoolOpts
-	State      PoolState // The last known Pool State
+	State      PoolState
 }
 
 func NewPool(client *ethclient.Client, name string, poolAddress common.Address, immutables PoolOpts) (*Pool, error) {
@@ -50,19 +48,19 @@ func NewPool(client *ethclient.Client, name string, poolAddress common.Address, 
 	return &Pool{
 		Name:       name,
 		Address:    poolAddress,
+		client:     client,
 		caller:     caller,
 		Immutables: immutables,
-		// Initialize empty PoolState
-		State: PoolState{},
+		State:      PoolState{},
 	}, nil
 }
 
 // UpdateState updates the internal pool state. Should be called every time the state changes on-chain
 // i.e. on a new block. Note that cached pools should have their states refreshed as well.
-func (p *Pool) UpdateState(ctx context.Context, client *ethclient.Client) error {
+func (p *Pool) UpdateState(ctx context.Context) error {
 	opts := &bind.CallOpts{Context: ctx}
 
-	caller, err := univ3pool.NewUniv3poolCaller(p.Address, client)
+	caller, err := univ3pool.NewUniv3poolCaller(p.Address, p.client)
 	if err != nil {
 		return err
 	}

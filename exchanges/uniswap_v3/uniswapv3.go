@@ -95,7 +95,7 @@ func (v3 *UniswapV3) GetPool(ctx context.Context, token0, token1 common.Address,
 		return nil, err
 	}
 
-	err = pool.UpdateState(ctx, v3.Client)
+	err = pool.UpdateState(ctx)
 	if err != nil {
 		return nil, err
 	}

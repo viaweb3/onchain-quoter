@@ -59,7 +59,7 @@ func TestUpdateState(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	err := p.UpdateState(ctx, client)
+	err := p.UpdateState(ctx)
 	if err != nil {
 		t.Fatalf("error updating state: %s", err)
 	}
