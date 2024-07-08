@@ -8,16 +8,15 @@ import (
 	bin "github.com/gagliardetto/binary"
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
+	"github.com/viaweb3/onchain-quoter/exchanges/raydium"
 	"github.com/viaweb3/onchain-quoter/token"
 	"math/big"
 )
 
 var (
-	ErrWrongToken  = errors.New("raydium Standard pool: PriceOf: token not in pool")
-	ErrorWrongType = errors.New("raydium Standard pool: Not Raydium Liquidity Pool V4")
+	ErrWrongToken       = errors.New("raydium Standard pool: PriceOf: token not in pool")
+	ErrorWrongTypeAMMV4 = errors.New("raydium Standard pool: Not Raydium AMM_V4 pool")
 )
-
-const RaydiumLiquidityPoolV4 = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
 
 type LiquidityOpts struct {
 	Token0 token.Token
@@ -58,8 +57,8 @@ func (p *Liquidity) UpdateState(ctx context.Context) error {
 		return err
 	}
 
-	if account.Value.Owner.String() != RaydiumLiquidityPoolV4 {
-		return ErrorWrongType
+	if account.Value.Owner.String() != raydium.AMM_V4 {
+		return ErrorWrongTypeAMMV4
 	}
 
 	err = bin.NewBorshDecoder(account.GetBinary()).Decode(&p.State)

@@ -8,16 +8,15 @@ import (
 	bin "github.com/gagliardetto/binary"
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
+	"github.com/viaweb3/onchain-quoter/exchanges/raydium"
 	"github.com/viaweb3/onchain-quoter/token"
 	"math/big"
 )
 
 var (
-	ErrWrongToken  = errors.New("raydium Concentrated pool: PriceOf: token not in pool")
-	ErrorWrongType = errors.New("raydium Concentrated pool: Not Raydium Concentrated Liquidity")
+	ErrWrongToken      = errors.New("raydium Concentrated pool: PriceOf: token not in pool")
+	ErrorWrongTypeCLMM = errors.New("raydium Concentrated pool: Not Raydium CLMM pool")
 )
-
-const RaydiumConcentratedLiquidity = "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 
 type PoolOpts struct {
 	Token0 token.Token
@@ -49,8 +48,8 @@ func (p *Pool) UpdateState(ctx context.Context) error {
 		return err
 	}
 
-	if account.Value.Owner.String() != RaydiumConcentratedLiquidity {
-		return ErrorWrongType
+	if account.Value.Owner.String() != raydium.CLMM_PROGRAM_ID {
+		return ErrorWrongTypeCLMM
 	}
 
 	err = bin.NewBorshDecoder(account.GetBinary()).Decode(&p.State)
