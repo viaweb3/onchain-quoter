@@ -1,4 +1,4 @@
-package raydium
+package concentrated
 
 import (
 	bin "github.com/gagliardetto/binary"

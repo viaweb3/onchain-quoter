@@ -1,4 +1,4 @@
-package raydium
+package concentrated
 
 import (
 	"context"
@@ -8,8 +8,10 @@ import (
 	"time"
 )
 
+//https://api-v3.raydium.io/docs/
+
 var (
-	solUsdtPool = "2QdhepnKRTLjjSqPL1PtKNwqrUkoLee5Gqs8bvZhRdMv"
+	solUsdcPool = "2QdhepnKRTLjjSqPL1PtKNwqrUkoLee5Gqs8bvZhRdMv"
 	token0      = token.NewToken("SOL", "So11111111111111111111111111111111111111112", 9)
 	token1      = token.NewToken("USDC", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 6)
 )
@@ -30,7 +32,7 @@ func newTestPool() (*Pool, error) {
 		return nil, err
 	}
 
-	p, err := NewPool(client, "SOLUSDC", solUsdtPool, i)
+	p, err := NewPool(client, "SOLUSDC", solUsdcPool, i)
 	if err != nil {
 		return nil, err
 	}

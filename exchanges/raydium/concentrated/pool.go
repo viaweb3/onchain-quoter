@@ -1,10 +1,11 @@
-package raydium
+package concentrated
 
 import (
 	"bytes"
 	"context"
 	"encoding/gob"
 	"errors"
+	bin "github.com/gagliardetto/binary"
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
 	"github.com/viaweb3/onchain-quoter/token"
@@ -12,8 +13,11 @@ import (
 )
 
 var (
-	ErrWrongToken = errors.New("raydium pool: PriceOf: token not in pool")
+	ErrWrongToken  = errors.New("raydium Concentrated pool: PriceOf: token not in pool")
+	ErrorWrongType = errors.New("raydium Concentrated pool: Not Raydium Concentrated Liquidity")
 )
+
+const RaydiumConcentratedLiquidity = "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 
 type PoolOpts struct {
 	Token0 token.Token
@@ -28,6 +32,7 @@ type Pool struct {
 	State      PoolState
 }
 
+// NewPool Just like Uniswap-V3
 func NewPool(client *rpc.Client, name string, poolAddress string, immutables PoolOpts) (*Pool, error) {
 	return &Pool{
 		Name:       name,
@@ -39,7 +44,16 @@ func NewPool(client *rpc.Client, name string, poolAddress string, immutables Poo
 }
 
 func (p *Pool) UpdateState(ctx context.Context) error {
-	err := p.client.GetAccountDataBorshInto(ctx, p.Address, &p.State)
+	account, err := p.client.GetAccountInfo(ctx, p.Address)
+	if err != nil {
+		return err
+	}
+
+	if account.Value.Owner.String() != RaydiumConcentratedLiquidity {
+		return ErrorWrongType
+	}
+
+	err = bin.NewBorshDecoder(account.GetBinary()).Decode(&p.State)
 	if err != nil {
 		return err
 	}
