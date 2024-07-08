@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/viaweb3/onchain-quoter/token"
-
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/viaweb3/onchain-quoter/token"
 )
 
 var (
